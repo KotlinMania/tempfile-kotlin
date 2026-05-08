@@ -90,7 +90,7 @@ fn main() {
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:tempfile-kotlin:0.1.0-SNAPSHOT")
+    implementation("io.github.kotlinmania:tempfile-kotlin:0.1.0")
 }
 ```
 
