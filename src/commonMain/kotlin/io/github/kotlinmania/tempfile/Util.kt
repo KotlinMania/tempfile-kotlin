@@ -3,6 +3,14 @@ package io.github.kotlinmania.tempfile
 
 import kotlin.random.Random
 
+/**
+ * Maximum number of times [createHelper] retries with a fresh random name
+ * before giving up. Upstream `crate::NUM_RETRIES` is declared in `src/lib.rs`
+ * and used only here; kept private to this file in the Kotlin port so
+ * `Lib.kt` is not a Rust-shaped catchall.
+ */
+private const val NUM_RETRIES: Int = 65536
+
 private val ALPHANUMERIC: CharArray = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
         "abcdefghijklmnopqrstuvwxyz" +
