@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Platform actual for [systemTempDir] on native (Apple / Linux / mingw /
 // androidNative). On POSIX-like systems we read `$TMPDIR` and fall back to
 // `/tmp`. On Windows (mingw) we read `%TEMP%`, then `%TMP%`, then fall back

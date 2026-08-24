@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Platform actual for [systemTempDir] on Android: same as JVM — read the
 // `java.io.tmpdir` system property.
 package io.github.kotlinmania.tempfile

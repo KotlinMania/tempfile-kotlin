@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Windows actual for the temp dir env probe.
 package io.github.kotlinmania.tempfile
 

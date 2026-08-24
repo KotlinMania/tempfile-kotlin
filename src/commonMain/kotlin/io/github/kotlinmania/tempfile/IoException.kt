@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Kotlin-side analog of Rust's `std::io::Error` and `std::io::ErrorKind`. The
 // upstream tempfile crate relies on the standard-library types directly; the
 // Kotlin port lives in a commonMain world that has no built-in IO error type

@@ -1,4 +1,3 @@
-// port-lint: ignore
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
 package io.github.kotlinmania.tempfile.dir

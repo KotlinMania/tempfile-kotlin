@@ -41,8 +41,11 @@ internal fun <R> createHelper(
         base
     } else {
         val cwd = currentDir()
-            ?: return Result.failure(IoException(IoErrorKind.NotFound, "current_dir unavailable"))
-        joinPath(cwd, base)
+        if (cwd != null && cwd.isNotEmpty() && cwd != ".") {
+            joinPath(cwd, base)
+        } else {
+            base
+        }
     }
 
     val numRetries = if (randomLen != 0) NUM_RETRIES else 1
@@ -95,7 +98,7 @@ internal fun isAbsolutePath(path: String): Boolean {
 internal fun joinPath(base: String, leaf: String): String {
     if (leaf.isEmpty()) return base
     if (isAbsolutePath(leaf)) return leaf
-    if (base.isEmpty()) return leaf
+    if (base.isEmpty() || base == ".") return leaf
     val last = base.last()
     return if (last == '/' || last == '\\') base + leaf else "$base/$leaf"
 }

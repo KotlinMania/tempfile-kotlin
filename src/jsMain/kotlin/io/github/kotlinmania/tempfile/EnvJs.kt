@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Platform actual for [systemTempDir] on JS: delegate to Node's `os.tmpdir()`.
 // Routed through `eval('require')` so the webpack browser bundle does not
 // try to resolve `os` at bundle time. Browsers don't have a real tempdir;

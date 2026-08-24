@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Atomic single-directory creation. Used by `Builder.tempdirIn` via
 // `createHelper`'s retry loop. Returns `IoErrorKind.AlreadyExists` when the
 // path exists so `createHelper` triggers a re-randomize; any other failure

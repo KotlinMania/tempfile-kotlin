@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Android Native actual stub for the windows-only env probe: always null on POSIX.
 package io.github.kotlinmania.tempfile
 
