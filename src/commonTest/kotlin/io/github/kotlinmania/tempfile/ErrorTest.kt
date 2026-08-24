@@ -1,4 +1,3 @@
-// port-lint: ignore
 package io.github.kotlinmania.tempfile
 
 import kotlin.test.Test
