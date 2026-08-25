@@ -1,4 +1,4 @@
-// port-lint: tests tests/tempfile.rs
+// port-lint: tests lib.rs
 package io.github.kotlinmania.tempfile
 
 import kotlin.test.Test
