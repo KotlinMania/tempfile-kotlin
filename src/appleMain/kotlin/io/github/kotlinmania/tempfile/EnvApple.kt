@@ -1,4 +1,12 @@
-// Apple actual stub for the windows-only env probe: always null on POSIX.
 package io.github.kotlinmania.tempfile
 
-internal actual fun windowsTempDirFallback(): String? = null
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.toKString
+import platform.posix.getenv
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun systemTempDir(): String {
+    val tmpdir = getenv("TMPDIR")?.toKString()
+    if (!tmpdir.isNullOrEmpty()) return tmpdir
+    return "/tmp"
+}

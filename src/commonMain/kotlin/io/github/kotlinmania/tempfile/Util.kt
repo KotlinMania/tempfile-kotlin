@@ -11,10 +11,11 @@ import kotlin.random.Random
  */
 private const val NUM_RETRIES: Int = 65536
 
-private val ALPHANUMERIC: CharArray = (
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-        "abcdefghijklmnopqrstuvwxyz" +
-        "0123456789"
+private val ALPHANUMERIC: CharArray =
+    (
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+            "abcdefghijklmnopqrstuvwxyz" +
+            "0123456789"
     ).toCharArray()
 
 internal fun tmpname(rng: Random, prefix: String, suffix: String, randLen: Int): String {
@@ -37,16 +38,17 @@ internal fun <R> createHelper(
     // Make the path absolute. Otherwise, changing the current directory can
     // invalidate a stored path (causing issues when cleaning up temporary
     // files).
-    val absoluteBase = if (isAbsolutePath(base)) {
-        base
-    } else {
-        val cwd = currentDir()
-        if (cwd != null && cwd.isNotEmpty() && cwd != ".") {
-            joinPath(cwd, base)
-        } else {
+    val absoluteBase =
+        if (isAbsolutePath(base)) {
             base
+        } else {
+            val cwd = currentDir()
+            if (cwd != null && cwd.isNotEmpty() && cwd != ".") {
+                joinPath(cwd, base)
+            } else {
+                base
+            }
         }
-    }
 
     val numRetries = if (randomLen != 0) NUM_RETRIES else 1
 
@@ -71,9 +73,10 @@ internal fun <R> createHelper(
         return result
     }
 
-    return Result.failure<R>(
-        IoException(IoErrorKind.AlreadyExists, "too many temporary files exist"),
-    ).withErrPath { absoluteBase }
+    return Result
+        .failure<R>(
+            IoException(IoErrorKind.AlreadyExists, "too many temporary files exist"),
+        ).withErrPath { absoluteBase }
 }
 
 /**
