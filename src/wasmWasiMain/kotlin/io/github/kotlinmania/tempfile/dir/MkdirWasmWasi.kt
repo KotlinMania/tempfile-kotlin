@@ -9,9 +9,10 @@ private val createdDirs: MutableSet<String> = mutableSetOf()
 
 internal actual fun createTempDirAt(path: String): Result<Unit> {
     if (path in createdDirs) {
-        return Result.failure<Unit>(
-            IoException(IoErrorKind.AlreadyExists, "createTempDirAt: $path already exists"),
-        ).withErrPath { path }
+        return Result
+            .failure<Unit>(
+                IoException(IoErrorKind.AlreadyExists, "createTempDirAt: $path already exists"),
+            ).withErrPath { path }
     }
     createdDirs.add(path)
     return Result.success(Unit)

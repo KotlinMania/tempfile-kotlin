@@ -1,22 +1,42 @@
 package io.github.kotlinmania.tempfile.dir
 
-import kotlinx.cinterop.CPointer
+import io.github.kotlinmania.tempfile.IoErrorKind
+import io.github.kotlinmania.tempfile.IoException
+import io.github.kotlinmania.tempfile.withErrPath
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.toKString
+import platform.posix.EACCES
+import platform.posix.EEXIST
+import platform.posix.ENOENT
+import platform.posix.ENOTEMPTY
+import platform.posix.errno
 import platform.posix.mkdir
+import platform.posix.remove
+import platform.posix.rmdir
 
-// mingw's `mkdir` is the Windows MSVCRT shim and takes only a path argument
-// (no mode). Mode bits would be ignored anyway since NTFS permissions are
-// ACL-based, not POSIX-mode.
 @OptIn(ExperimentalForeignApi::class)
-internal actual fun posixMkdir(path: String): Int = mkdir(path)
-
-// mingw exposes `dirent` via cinterop with a `d_name` `CArrayPointer<ByteVar>`
-// field. Layout is the same as POSIX; toKString() reads until the NUL.
-@OptIn(ExperimentalForeignApi::class)
-internal actual fun posixDirentName(entry: CPointer<*>): String? {
-    val d = entry.reinterpret<platform.posix.dirent>().pointed
-    return d.d_name.toKString()
+internal actual fun createTempDirAt(path: String): Result<Unit> {
+    val rc = mkdir(path)
+    if (rc == 0) return Result.success(Unit)
+    return Result
+        .failure<Unit>(
+            IoException(mingwErrnoToKind(errno), "mkdir failed: errno=$errno"),
+        ).withErrPath { path }
 }
+
+@OptIn(ExperimentalForeignApi::class)
+internal actual fun removeDirAll(path: String): Result<Unit> {
+    if (rmdir(path) == 0 || remove(path) == 0) return Result.success(Unit)
+    return Result
+        .failure<Unit>(
+            IoException(mingwErrnoToKind(errno), "rmdir failed: errno=$errno"),
+        ).withErrPath { path }
+}
+
+private fun mingwErrnoToKind(e: Int): IoErrorKind =
+    when (e) {
+        EEXIST -> IoErrorKind.AlreadyExists
+        ENOENT -> IoErrorKind.NotFound
+        EACCES -> IoErrorKind.PermissionDenied
+        ENOTEMPTY -> IoErrorKind.DirectoryNotEmpty
+        else -> IoErrorKind.Other
+    }

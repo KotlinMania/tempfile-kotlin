@@ -33,17 +33,17 @@ internal actual fun removeDirAll(path: String): Result<Unit> =
         if (nodeFsExistsSync(path)) {
             nodeFsRmSyncRecursive(path)
         }
-    }
-        .mapErrorToIoException(path)
+    }.mapErrorToIoException(path)
 
 private fun Result<Unit>.mapErrorToIoException(path: String): Result<Unit> {
     val err = exceptionOrNull() ?: return this
-    val kind = when (nodeErrorCode(err)) {
-        "EEXIST" -> IoErrorKind.AlreadyExists
-        "ENOENT" -> IoErrorKind.NotFound
-        "EACCES", "EPERM" -> IoErrorKind.PermissionDenied
-        "ENOTEMPTY" -> IoErrorKind.DirectoryNotEmpty
-        else -> IoErrorKind.Other
-    }
+    val kind =
+        when (nodeErrorCode(err)) {
+            "EEXIST" -> IoErrorKind.AlreadyExists
+            "ENOENT" -> IoErrorKind.NotFound
+            "EACCES", "EPERM" -> IoErrorKind.PermissionDenied
+            "ENOTEMPTY" -> IoErrorKind.DirectoryNotEmpty
+            else -> IoErrorKind.Other
+        }
     return Result.failure<Unit>(IoException(kind, err)).withErrPath { path }
 }
