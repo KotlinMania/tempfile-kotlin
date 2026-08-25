@@ -1,4 +1,4 @@
-// port-lint: source src/dir/mod.rs
+// port-lint: source dir/mod.rs
 package io.github.kotlinmania.tempfile.dir
 
 import io.github.kotlinmania.tempfile.Builder
@@ -57,7 +57,7 @@ class TempDir internal constructor(
     private var pathValue: String,
     /**
      * When `true`, [close] is a no-op (the on-disk directory is preserved).
-     * Mirrors upstream `disable_cleanup`.
+     * Mirrors upstream disable cleanup flag.
      */
     var disableCleanup: Boolean,
 ) {

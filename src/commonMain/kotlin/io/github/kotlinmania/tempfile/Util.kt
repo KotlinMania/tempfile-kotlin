@@ -1,4 +1,4 @@
-// port-lint: source src/util.rs
+// port-lint: source util.rs
 package io.github.kotlinmania.tempfile
 
 import kotlin.random.Random
@@ -81,8 +81,7 @@ internal fun <R> createHelper(
 
 /**
  * Returns `true` if [path] starts with a POSIX root (`/` or `\\`) or a Windows
- * drive letter (`C:/...`, `C:\...`). Mirrors the minimal subset of
- * `std::path::Path::is_absolute` the upstream `create_helper` checks.
+ * drive letter (`C:/...`, `C:\...`). Mirrors the minimal absolute path check.
  */
 internal fun isAbsolutePath(path: String): Boolean {
     if (path.isEmpty()) return false

@@ -1,3 +1,4 @@
+// port-lint: tests error.rs
 package io.github.kotlinmania.tempfile
 
 import kotlin.test.Test

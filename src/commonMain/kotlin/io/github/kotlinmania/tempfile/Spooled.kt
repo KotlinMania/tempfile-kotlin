@@ -1,4 +1,4 @@
-// port-lint: source src/spooled.rs
+// port-lint: source spooled.rs
 package io.github.kotlinmania.tempfile
 
 /**
