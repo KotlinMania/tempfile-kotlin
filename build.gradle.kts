@@ -922,4 +922,3 @@ tasks.matching { it.name == "compileTestDevelopmentExecutableKotlinWasmWasi" }.c
 tasks.named("build") {
     dependsOn(fullTargetBuildTaskNames)
 }
-

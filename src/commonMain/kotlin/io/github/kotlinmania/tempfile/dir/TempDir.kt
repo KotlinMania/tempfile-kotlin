@@ -61,7 +61,6 @@ class TempDir internal constructor(
      */
     var disableCleanup: Boolean,
 ) {
-
     /** Accesses the path to the temporary directory. */
     fun path(): String = pathValue
 

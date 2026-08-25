@@ -43,8 +43,9 @@ fun tempDir(): String = DEFAULT_TEMPDIR.load() ?: systemTempDir()
  * Thrown by [overrideTempDir] when an override was already set. Carries the previously set path
  * in [previouslySet].
  */
-class OverrideTempDirAlreadySet(val previouslySet: String) :
-    IllegalStateException("temporary directory override already set to \"$previouslySet\"")
+class OverrideTempDirAlreadySet(
+    val previouslySet: String,
+) : IllegalStateException("temporary directory override already set to \"$previouslySet\"")
 
 /**
  * Returns the platform's default temporary directory.

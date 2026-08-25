@@ -20,18 +20,18 @@ internal actual fun removeDirAll(path: String): Result<Unit> =
             @OptIn(kotlin.io.path.ExperimentalPathApi::class)
             p.deleteRecursively()
         }
-    }
-        .map { }
+    }.map { }
         .mapErrorToIoException(path)
 
 private fun Result<Unit>.mapErrorToIoException(path: String): Result<Unit> {
     val err = exceptionOrNull() ?: return this
-    val kind = when (err::class.simpleName) {
-        "FileAlreadyExistsException" -> IoErrorKind.AlreadyExists
-        "NoSuchFileException" -> IoErrorKind.NotFound
-        "AccessDeniedException" -> IoErrorKind.PermissionDenied
-        "DirectoryNotEmptyException" -> IoErrorKind.DirectoryNotEmpty
-        else -> IoErrorKind.Other
-    }
+    val kind =
+        when (err::class.simpleName) {
+            "FileAlreadyExistsException" -> IoErrorKind.AlreadyExists
+            "NoSuchFileException" -> IoErrorKind.NotFound
+            "AccessDeniedException" -> IoErrorKind.PermissionDenied
+            "DirectoryNotEmptyException" -> IoErrorKind.DirectoryNotEmpty
+            else -> IoErrorKind.Other
+        }
     return Result.failure<Unit>(IoException(kind, err)).withErrPath { path }
 }

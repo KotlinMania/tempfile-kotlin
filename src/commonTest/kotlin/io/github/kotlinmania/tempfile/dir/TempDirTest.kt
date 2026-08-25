@@ -9,7 +9,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TempDirTest {
-
     private val created = mutableListOf<TempDir>()
 
     private fun track(d: Result<TempDir>): TempDir {

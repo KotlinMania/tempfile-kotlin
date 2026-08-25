@@ -5,7 +5,9 @@ package io.github.kotlinmania.tempfile
  * A wrapper for the two states of a [SpooledTempFile].
  */
 public sealed class SpooledData {
-    public data class InMemory(public val buffer: ByteArray) : SpooledData() {
+    public data class InMemory(
+        public val buffer: ByteArray,
+    ) : SpooledData() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is InMemory) return false
@@ -15,7 +17,9 @@ public sealed class SpooledData {
         override fun hashCode(): Int = buffer.contentHashCode()
     }
 
-    public data class OnDisk(public val path: String) : SpooledData()
+    public data class OnDisk(
+        public val path: String,
+    ) : SpooledData()
 }
 
 /**
