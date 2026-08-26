@@ -8,9 +8,9 @@ Based on AST analysis, here are the concrete next steps.
 - **Function parity:** 31/82 matched (target 67) — 37.8%
 - **Class/type parity:** 5/6 matched (target 14) — 83.3%
 - **Combined symbol parity:** 36/88 matched (target 81) — 40.9%
-- **Average inline-code cosine:** 0.38 (function body across 4 matched files)
-- **Average documentation cosine:** 0.39 (doc text across 4 matched files)
-- **Cheat-zeroed Files:** 2
+- **Average inline-code cosine:** 0.38 (function body across 5 matched files)
+- **Average documentation cosine:** 0.34 (doc text across 5 matched files)
+- **Cheat-zeroed Files:** 1
 - **Critical Issues:** 5 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
@@ -73,17 +73,14 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 5. lib
 
-- **Target:** `tempfile.Lib [STUB] [PROVENANCE-FALLBACK]`
-- **Similarity:** 0.00
+- **Target:** `tempfile.Lib`
+- **Similarity:** 0.37
 - **Dependents:** 0
-- **Priority Score:** 81610.0
+- **Priority Score:** 81606.3
 - **Functions:** 7/15 matched (target 8)
 - **Missing functions:** `default`, `new`, `permissions`, `keep`, `tempfile`, `tempfile_in`, `make`, `make_in`
 - **Types:** 1/1 matched (target 3)
 - **Missing types:** _none_
-- **Provenance warning:** port-lint provenance header matched only after fallback normalization: `src/lib.rs` vs expected `lib.rs`
-- **Proposed provenance header:** `// port-lint: source lib.rs` (current: `// port-lint: source src/lib.rs`)
-- **Lint issues:** 1
 
 ### 6. dir.mod
 
