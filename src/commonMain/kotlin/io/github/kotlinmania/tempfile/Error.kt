@@ -1,4 +1,4 @@
-// port-lint: source error.rs
+// port-lint: source tempfile/src/error.rs
 package io.github.kotlinmania.tempfile
 
 private class PathError(

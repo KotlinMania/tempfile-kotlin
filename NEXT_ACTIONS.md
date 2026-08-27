@@ -4,13 +4,13 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 6/14 (42.9%)
-- **Function parity:** 31/82 matched (target 67) — 37.8%
-- **Class/type parity:** 5/6 matched (target 14) — 83.3%
-- **Combined symbol parity:** 36/88 matched (target 81) — 40.9%
-- **Average inline-code cosine:** 0.38 (function body across 5 matched files)
-- **Average documentation cosine:** 0.34 (doc text across 5 matched files)
-- **Cheat-zeroed Files:** 1
+- **Files Present:** 6/19 (31.6%)
+- **Function parity:** 21/232 matched (target 67) — 9.1%
+- **Class/type parity:** 3/13 matched (target 14) — 23.1%
+- **Combined symbol parity:** 24/245 matched (target 81) — 9.8%
+- **Average inline-code cosine:** 0.21 (function body across 4 matched files)
+- **Average documentation cosine:** 0.01 (doc text across 4 matched files)
+- **Cheat-zeroed Files:** 2
 - **Critical Issues:** 5 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
@@ -27,18 +27,7 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. env
-
-- **Target:** `tempfile.Env`
-- **Similarity:** 0.49
-- **Dependents:** 2
-- **Priority Score:** 2000205.0
-- **Functions:** 2/2 matched
-- **Missing functions:** _none_
-- **Types:** 0/0 matched (target 1)
-- **Missing types:** _none_
-
-### 2. util
+### 1. tempfile.util
 
 - **Target:** `tempfile.Util`
 - **Similarity:** 0.63
@@ -49,7 +38,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 3. error
+### 2. tempfile.error
 
 - **Target:** `tempfile.Error`
 - **Similarity:** 0.22
@@ -60,29 +49,30 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/2 matched
 - **Missing types:** `IoResultExt`
 
-### 4. spooled
+### 3. tests.spooled
 
 - **Target:** `tempfile.Spooled`
-- **Similarity:** 0.18
+- **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 112108.2
-- **Functions:** 8/19 matched (target 13)
-- **Missing functions:** `cursor_to_tempfile`, `new`, `new_in`, `into_file`, `read_vectored`, `read_to_end`, `read_to_string`, `read_exact`, `write_vectored`, `flush`, `seek`
-- **Types:** 2/2 matched (target 5)
+- **Priority Score:** 252510.0
+- **Functions:** 0/25 matched (target 13)
+- **Missing functions:** `configure_wasi_temp_dir`, `test_automatic_rollover`, `test_custom_dir`, `test_explicit_rollover`, `test_seek`, `test_seek_buffer`, `test_seek_file`, `test_seek_read`, `test_seek_read_buffer`, `test_seek_read_file`, `test_overwrite_middle`, `test_overwrite_middle_of_buffer`, `test_overwrite_middle_of_file`, `test_overwrite_and_extend_buffer`, `test_overwrite_and_extend_rollover`, `test_sparse`, `test_sparse_buffer`, `test_sparse_file`, `test_sparse_write_rollover`, `test_set_len`, `test_set_len_buffer`, `test_set_len_file`, `test_set_len_rollover`, `test_write_overflow`, `test_set_len_truncation`
+- **Types:** 0/0 matched (target 5)
 - **Missing types:** _none_
+- **Tests:** 0/19 matched
 
-### 5. lib
+### 4. tempfile.lib
 
-- **Target:** `tempfile.Lib`
-- **Similarity:** 0.37
+- **Target:** `tempfile.Lib [STUB]`
+- **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 81606.3
+- **Priority Score:** 81610.0
 - **Functions:** 7/15 matched (target 8)
 - **Missing functions:** `default`, `new`, `permissions`, `keep`, `tempfile`, `tempfile_in`, `make`, `make_in`
 - **Types:** 1/1 matched (target 3)
 - **Missing types:** _none_
 
-### 6. dir.mod
+### 5. dir.mod
 
 - **Target:** `dir.TempDir [STUB]`
 - **Similarity:** 0.00
@@ -93,6 +83,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched (target 2)
 - **Missing types:** _none_
 
+### 6. tests.env
+
+- **Target:** `tempfile.Env`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10110.0
+- **Functions:** 0/1 matched (target 2)
+- **Missing functions:** `test_override_temp_dir`
+- **Types:** 0/0 matched (target 1)
+- **Missing types:** _none_
+- **Tests:** 0/1 matched
+
 ## Success Criteria
 
 For each file to be considered "complete":
@@ -101,19 +103,4 @@ For each file to be considered "complete":
 - All tests ported
 - Documentation ported
 - port-lint header present
-
-## Reexport / Wiring Modules
-
-These files match `reexport_modules` patterns in `.ast_distance_config.json`. They are filtered out of
-normal priority and missing-file ladders because they are wiring
-modules, not direct logic ports. Consult them for call-site routing;
-do not treat them as the next implementation target by default.
-
-### Missing
-
-| Source | Expected target | Deps | Source path | Expected path |
-|--------|-----------------|------|-------------|---------------|
-| `imp.mod` | `dir.imp.Mod` | 0 | `dir/imp/mod.rs` | `dir/imp/Mod.kt` |
-| `file.imp.mod` | `file.imp.Mod` | 0 | `file/imp/mod.rs` | `file/imp/Mod.kt` |
-| `file.mod` | `file.Mod` | 0 | `file/mod.rs` | `file/Mod.kt` |
 
