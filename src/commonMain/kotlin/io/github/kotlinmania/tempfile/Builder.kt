@@ -1,4 +1,4 @@
-// port-lint: source tempfile/src/lib.rs
+// port-lint: source lib.rs
 package io.github.kotlinmania.tempfile
 
 import io.github.kotlinmania.tempfile.dir.TempDir
@@ -21,9 +21,6 @@ internal const val NUM_RAND_CHARS: Int = 6
  *  - `randomLen = NUM_RAND_CHARS` (6)
  *  - `append = false`
  *  - `disableCleanup = false`
- *
- * Permissions configuration (`Builder::permissions`) is not yet ported and
- * intentionally absent from this surface.
  */
 class Builder internal constructor(
     internal var prefix: String,
@@ -65,8 +62,6 @@ class Builder internal constructor(
 
     /**
      * Set whether the temporary file should be opened in append mode.
-     * Currently only consumed by `Builder.tempfile`/`tempfileIn` (not yet
-     * ported); accepted on the Builder surface for API parity.
      */
     fun append(append: Boolean): Builder {
         this.append = append
