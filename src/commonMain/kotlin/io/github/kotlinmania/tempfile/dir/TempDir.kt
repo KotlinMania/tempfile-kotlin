@@ -1,4 +1,4 @@
-// port-lint: source tempfile/src/dir/mod.rs
+// port-lint: source dir/mod.rs
 package io.github.kotlinmania.tempfile.dir
 
 import io.github.kotlinmania.tempfile.Builder
@@ -43,11 +43,9 @@ fun tempdirIn(dir: String): Result<TempDir> = TempDir.newIn(dir)
  *
  * ### Resource Leaking
  *
- * Various platform-specific conditions may cause `TempDir` to fail
- * to delete the underlying directory. The Kotlin port does not yet model
- * the upstream `Drop` cleanup (Kotlin has no destructors); call [close]
- * explicitly when you need cleanup to happen and need to observe its
- * result.
+ * Various platform-specific conditions may cause [TempDir] to fail
+ * to delete the underlying directory. Call [close] explicitly when
+ * you need cleanup to happen and need to observe its result.
  *
  * Note that if the program exits before [close] is called, such as via
  * `exitProcess`, by segfaulting, or by receiving a signal like `SIGINT`,
