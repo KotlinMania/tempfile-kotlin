@@ -5,9 +5,9 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 6/14 (42.9%)
-- **Function parity:** 31/154 matched (target 67) — 20.1%
-- **Class/type parity:** 5/11 matched (target 14) — 45.5%
-- **Combined symbol parity:** 36/165 matched (target 81) — 21.8%
+- **Function parity:** 24/139 matched (target 59) — 17.3%
+- **Class/type parity:** 4/10 matched (target 11) — 40.0%
+- **Combined symbol parity:** 28/149 matched (target 70) — 18.8%
 - **Average inline-code cosine:** 0.38 (function body across 5 matched files)
 - **Average documentation cosine:** 0.34 (doc text across 5 matched files)
 - **Cheat-zeroed Files:** 1
@@ -71,18 +71,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 2/2 matched (target 5)
 - **Missing types:** _none_
 
-### 5. lib
-
-- **Target:** `tempfile.Lib`
-- **Similarity:** 0.37
-- **Dependents:** 0
-- **Priority Score:** 81606.3
-- **Functions:** 7/15 matched (target 8)
-- **Missing functions:** `default`, `new`, `permissions`, `keep`, `tempfile`, `tempfile_in`, `make`, `make_in`
-- **Types:** 1/1 matched (target 3)
-- **Missing types:** _none_
-
-### 6. dir.mod
+### 5. dir.mod
 
 - **Target:** `dir.TempDir [STUB]`
 - **Similarity:** 0.00
@@ -101,4 +90,17 @@ For each file to be considered "complete":
 - All tests ported
 - Documentation ported
 - port-lint header present
+
+## Reexport / Wiring Modules
+
+These files match `reexport_modules` patterns in `.ast_distance_config.json`. They are filtered out of
+normal priority and missing-file ladders because they are wiring
+modules, not direct logic ports. Consult them for call-site routing;
+do not treat them as the next implementation target by default.
+
+### Matched
+
+| Source | Target | Path |
+|--------|--------|------|
+| `lib` | `tempfile.Lib` | `lib` |
 
