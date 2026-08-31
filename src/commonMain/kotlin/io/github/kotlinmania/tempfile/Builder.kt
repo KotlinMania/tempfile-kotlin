@@ -3,6 +3,9 @@ package io.github.kotlinmania.tempfile
 
 import io.github.kotlinmania.tempfile.dir.TempDir
 import io.github.kotlinmania.tempfile.dir.createTempDirAt
+import io.github.kotlinmania.tempfile.file.NamedTempFile
+import io.github.kotlinmania.tempfile.file.TempPath
+import io.github.kotlinmania.tempfile.file.createNamedFile
 
 /**
  * Default number of random characters in a temporary file/directory name.
@@ -28,6 +31,7 @@ class Builder internal constructor(
     internal var randomLen: Int,
     internal var append: Boolean,
     internal var disableCleanup: Boolean,
+    internal var permissions: Int? = null,
 ) {
     constructor() : this(
         prefix = ".tmp",
@@ -35,6 +39,7 @@ class Builder internal constructor(
         randomLen = NUM_RAND_CHARS,
         append = false,
         disableCleanup = false,
+        permissions = null,
     )
 
     /** Set a custom filename prefix. */
@@ -79,6 +84,19 @@ class Builder internal constructor(
     }
 
     /**
+     * Set whether to keep the temporary file or directory after drop/close.
+     */
+    fun keep(keep: Boolean): Builder = disableCleanup(keep)
+
+    /**
+     * Set the file permissions to use when creating the temporary file or directory.
+     */
+    fun permissions(permissions: Int): Builder {
+        this.permissions = permissions
+        return this
+    }
+
+    /**
      * Attempts to make a temporary directory inside of [tempDir]. The
      * directory and everything inside it will be automatically deleted
      * once the returned [TempDir] is closed.
@@ -96,4 +114,46 @@ class Builder internal constructor(
                 TempDir.fromCreatedPath(path, disableCleanup = disableCleanup)
             }
         }
+
+    /**
+     * Attempts to make a named temporary file inside of [tempDir].
+     */
+    fun tempfile(): Result<NamedTempFile<String>> = tempfileIn(tempDir())
+
+    /**
+     * Attempts to make a named temporary file inside of [dir].
+     */
+    fun tempfileIn(dir: String): Result<NamedTempFile<String>> =
+        makeIn(dir) { path -> Result.success(path) }
+
+    /**
+     * Attempts to create a temporary file using the provided factory function.
+     */
+    fun <F> make(f: (String) -> Result<F>): Result<NamedTempFile<F>> =
+        makeIn(tempDir(), f)
+
+    /**
+     * Attempts to create a temporary file inside [dir] using the provided factory function.
+     */
+    fun <F> makeIn(dir: String, f: (String) -> Result<F>): Result<NamedTempFile<F>> =
+        createHelper(dir, prefix, suffix, randomLen) { path ->
+            createNamedFile(path).flatMap {
+                f(path).map { file ->
+                    NamedTempFile.fromParts(
+                        file,
+                        TempPath.new(path, disableCleanup = disableCleanup),
+                    )
+                }
+            }
+        }
+
+    companion object {
+        fun default(): Builder = Builder()
+        fun new(): Builder = Builder()
+    }
 }
+
+private inline fun <T, R> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> =
+    fold(onSuccess = transform, onFailure = { Result.failure(it) })
+
+

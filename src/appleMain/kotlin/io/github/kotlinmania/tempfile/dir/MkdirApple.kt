@@ -7,6 +7,7 @@ import io.github.kotlinmania.tempfile.withErrPath
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
+import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
@@ -29,7 +30,8 @@ import platform.posix.stat
 
 @OptIn(ExperimentalForeignApi::class)
 internal actual fun createTempDirAt(path: String): Result<Unit> {
-    val rc = mkdir(path, 0b111_111_111u)
+    val rc = mkdir(path, 0b111_111_111u.convert())
+
     if (rc == 0) return Result.success(Unit)
     return Result
         .failure<Unit>(

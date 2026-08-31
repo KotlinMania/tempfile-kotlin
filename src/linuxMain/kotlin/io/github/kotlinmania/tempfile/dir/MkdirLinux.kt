@@ -85,6 +85,8 @@ private fun posixLstatIsDir(path: String): Boolean? =
         val sb = alloc<stat>()
         val rc = stat(path, sb.ptr)
         if (rc != 0) return@memScoped null
-        val mode = sb.st_mode
-        (mode and S_IFDIR) != 0u
+        val mode = sb.st_mode.toInt()
+        (mode and S_IFDIR) != 0
     }
+
+

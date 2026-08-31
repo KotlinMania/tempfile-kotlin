@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 6/14 (42.9%)
-- **Function parity:** 24/139 matched (target 59) — 17.3%
-- **Class/type parity:** 4/10 matched (target 11) — 40.0%
-- **Combined symbol parity:** 28/149 matched (target 70) — 18.8%
-- **Average inline-code cosine:** 0.38 (function body across 5 matched files)
-- **Average documentation cosine:** 0.34 (doc text across 5 matched files)
-- **Cheat-zeroed Files:** 1
-- **Critical Issues:** 5 files with <0.60 function similarity
+- **Files Present:** 14/14 (100.0%)
+- **Function parity:** 74/111 matched (target 158) — 66.7%
+- **Class/type parity:** 9/10 matched (target 16) — 90.0%
+- **Combined symbol parity:** 83/121 matched (target 174) — 68.6%
+- **Average inline-code cosine:** 0.32 (function body across 10 matched files)
+- **Average documentation cosine:** 0.21 (doc text across 10 matched files)
+- **Cheat-zeroed Files:** 4
+- **Critical Issues:** 12 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -52,34 +52,122 @@ Every matched file is listed below with function and type symbol parity.
 ### 3. error
 
 - **Target:** `tempfile.Error`
-- **Similarity:** 0.22
+- **Similarity:** 0.48
 - **Dependents:** 1
-- **Priority Score:** 1030507.8
-- **Functions:** 1/3 matched (target 8)
-- **Missing functions:** `fmt`, `source`
-- **Types:** 1/2 matched
-- **Missing types:** `IoResultExt`
+- **Priority Score:** 1000505.1
+- **Functions:** 3/3 matched (target 10)
+- **Missing functions:** _none_
+- **Types:** 2/2 matched (target 3)
+- **Missing types:** _none_
 
-### 4. spooled
+### 4. file.mod
+
+- **Target:** `file.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 185010.0
+- **Functions:** 28/45 matched (target 47)
+- **Missing functions:** `from`, `deref`, `read`, `read_vectored`, `read_to_end`, `read_to_string`, `read_exact`, `write`, `flush`, `write_vectored`, `write_all`, `write_fmt`, `seek`, `as_fd`, `as_raw_fd`, `as_handle`, `as_raw_handle`
+- **Types:** 4/5 matched (target 4)
+- **Missing types:** `Target`
+
+### 5. imp.windows
+
+- **Target:** `imp.Windows`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 70710.0
+- **Functions:** 0/7 matched (target 5)
+- **Missing functions:** `to_utf16`, `not_supported`, `create_named`, `create`, `reopen`, `keep`, `persist`
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 6. file.imp.unix
+
+- **Target:** `commonMain.kotlin.io.github.kotlinmania.tempfile.file.imp.Unix`
+- **Similarity:** 0.06
+- **Dependents:** 0
+- **Priority Score:** 60709.4
+- **Functions:** 1/7 matched (target 5)
+- **Missing functions:** `create_named`, `create_unlinked`, `create`, `reopen`, `persist`, `keep`
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 7. imp.other
+
+- **Target:** `imp.Other`
+- **Similarity:** 0.05
+- **Dependents:** 0
+- **Priority Score:** 50609.5
+- **Functions:** 1/6 matched (target 11)
+- **Missing functions:** `create_named`, `create`, `reopen`, `persist`, `keep`
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 8. imp.any
+
+- **Target:** `imp.Any`
+- **Similarity:** 0.30
+- **Dependents:** 0
+- **Priority Score:** 10207.0
+- **Functions:** 1/2 matched (target 3)
+- **Missing functions:** `create`
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 9. imp.unix
+
+- **Target:** `imp.Unix`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10110.0
+- **Functions:** 0/1 matched
+- **Missing functions:** `create`
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 10. spooled
 
 - **Target:** `tempfile.Spooled`
-- **Similarity:** 0.18
+- **Similarity:** 0.42
 - **Dependents:** 0
-- **Priority Score:** 112108.2
-- **Functions:** 8/19 matched (target 13)
-- **Missing functions:** `cursor_to_tempfile`, `new`, `new_in`, `into_file`, `read_vectored`, `read_to_end`, `read_to_string`, `read_exact`, `write_vectored`, `flush`, `seek`
+- **Priority Score:** 2105.8
+- **Functions:** 19/19 matched (target 25)
+- **Missing functions:** _none_
 - **Types:** 2/2 matched (target 5)
 - **Missing types:** _none_
 
-### 5. dir.mod
+### 11. dir.mod
 
 - **Target:** `dir.TempDir [STUB]`
 - **Similarity:** 0.00
 - **Dependents:** 0
-- **Priority Score:** 61810.0
-- **Functions:** 11/17 matched (target 24)
-- **Missing functions:** `into_path`, `disable_cleanup`, `as_ref`, `fmt`, `drop`, `create`
+- **Priority Score:** 1810.0
+- **Functions:** 17/17 matched (target 31)
+- **Missing functions:** _none_
 - **Types:** 1/1 matched (target 2)
+- **Missing types:** _none_
+
+### 12. imp.mod
+
+- **Target:** `imp.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10.0
+- **Functions:** 0/0 matched (target 1)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
+- **Missing types:** _none_
+
+### 13. file.imp.mod
+
+- **Target:** `commonMain.kotlin.io.github.kotlinmania.tempfile.file.imp.Mod [STUB]`
+- **Similarity:** 0.00
+- **Dependents:** 0
+- **Priority Score:** 10.0
+- **Functions:** 0/0 matched (target 5)
+- **Missing functions:** _none_
+- **Types:** 0/0 matched
 - **Missing types:** _none_
 
 ## Success Criteria

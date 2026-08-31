@@ -62,6 +62,20 @@ class TempDir internal constructor(
     /** Accesses the path to the temporary directory. */
     fun path(): String = pathValue
 
+    /** Accesses the path to the temporary directory, matching upstream `AsRef<Path>`. */
+    fun asRef(): String = path()
+
+    /** Accesses the path to the temporary directory. */
+    fun asPath(): String = path()
+
+    /**
+     * Disable cleanup of the temporary directory. If `disableCleanup` is `true`,
+     * the temporary directory will not be deleted when this [TempDir] is closed.
+     */
+    fun disableCleanup(disableCleanup: Boolean) {
+        this.disableCleanup = disableCleanup
+    }
+
     /**
      * Persist the temporary directory to disk, returning the path where
      * it is located.
@@ -69,10 +83,6 @@ class TempDir internal constructor(
      * This consumes the [TempDir] without deleting the directory on the
      * filesystem, meaning that the directory will no longer be automatically
      * deleted by a subsequent [close].
-     *
-     * If you want to disable automatic cleanup of the temporary directory
-     * in-place, keeping the `TempDir` as-is, use [disableCleanup] setter
-     * instead.
      */
     fun keep(): String {
         disableCleanup = true
@@ -80,6 +90,14 @@ class TempDir internal constructor(
         pathValue = ""
         return taken
     }
+
+    /**
+     * Consumes the temporary directory and returns its path without deleting it.
+     *
+     * Deprecated alias for [keep] matching upstream intoPath.
+     */
+    @Deprecated("use keep() instead", ReplaceWith("keep()"))
+    fun intoPath(): String = keep()
 
     /**
      * Closes and removes the temporary directory, returning a [Result].
@@ -96,6 +114,16 @@ class TempDir internal constructor(
         return removeDirAll(target)
     }
 
+    /**
+     * Drop implementation matching upstream Rust `Drop::drop`.
+     */
+    fun drop(): Result<Unit> = close()
+
+    /**
+     * Formats this [TempDir] matching upstream `Display::fmt`.
+     */
+    fun fmt(): String = toString()
+
     override fun toString(): String = "TempDir(path=${path()})"
 
     companion object {
@@ -107,6 +135,16 @@ class TempDir internal constructor(
 
         /** Attempts to make a temporary directory inside [dir]. */
         fun newIn(dir: String): Result<TempDir> = Builder().tempdirIn(dir)
+
+        /**
+         * Creates a temporary directory at [path] with optional permissions and cleanup settings.
+         */
+        fun create(
+            path: String,
+            permissions: Int? = null,
+            disableCleanup: Boolean = false,
+        ): Result<TempDir> =
+            io.github.kotlinmania.tempfile.dir.imp.create(path, permissions, disableCleanup)
 
         /**
          * Attempts to make a temporary directory with the specified
