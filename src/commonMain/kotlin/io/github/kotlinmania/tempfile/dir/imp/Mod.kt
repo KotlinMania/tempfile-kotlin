@@ -1,4 +1,4 @@
-// port-lint: source dir/imp/mod.rs
+// port-lint: source tempfile/src/dir/imp/mod.rs
 package io.github.kotlinmania.tempfile.dir.imp
 
 import io.github.kotlinmania.tempfile.dir.TempDir

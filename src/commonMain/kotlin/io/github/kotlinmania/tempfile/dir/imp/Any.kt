@@ -1,4 +1,4 @@
-// port-lint: source dir/imp/any.rs
+// port-lint: source tempfile/src/dir/imp/any.rs
 package io.github.kotlinmania.tempfile.dir.imp
 
 import io.github.kotlinmania.tempfile.IoErrorKind

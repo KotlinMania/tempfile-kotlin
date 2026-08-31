@@ -1,4 +1,4 @@
-// port-lint: source util.rs
+// port-lint: source tempfile/src/util.rs
 package io.github.kotlinmania.tempfile
 
 import kotlin.random.Random

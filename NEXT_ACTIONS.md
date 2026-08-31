@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 14/14 (100.0%)
-- **Function parity:** 74/111 matched (target 158) — 66.7%
-- **Class/type parity:** 9/10 matched (target 16) — 90.0%
-- **Combined symbol parity:** 83/121 matched (target 174) — 68.6%
-- **Average inline-code cosine:** 0.32 (function body across 10 matched files)
-- **Average documentation cosine:** 0.21 (doc text across 10 matched files)
+- **Files Present:** 14/19 (73.7%)
+- **Function parity:** 74/189 matched (target 158) — 39.2%
+- **Class/type parity:** 9/12 matched (target 16) — 75.0%
+- **Combined symbol parity:** 83/201 matched (target 174) — 41.3%
+- **Average inline-code cosine:** 0.27 (function body across 9 matched files)
+- **Average documentation cosine:** 0.18 (doc text across 9 matched files)
 - **Cheat-zeroed Files:** 4
-- **Critical Issues:** 12 files with <0.60 function similarity
+- **Critical Issues:** 13 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -27,7 +27,7 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. env
+### 1. tempfile.env
 
 - **Target:** `tempfile.Env`
 - **Similarity:** 0.49
@@ -38,7 +38,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 2. util
+### 2. tempfile.util
 
 - **Target:** `tempfile.Util`
 - **Similarity:** 0.63
@@ -49,7 +49,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 
-### 3. error
+### 3. tempfile.error
 
 - **Target:** `tempfile.Error`
 - **Similarity:** 0.48
@@ -82,7 +82,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 6. file.imp.unix
+### 6. tempfile.file.imp.unix
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.tempfile.file.imp.Unix`
 - **Similarity:** 0.06
@@ -126,7 +126,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 10. spooled
+### 10. tempfile.spooled
 
 - **Target:** `tempfile.Spooled`
 - **Similarity:** 0.42
@@ -159,7 +159,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 13. file.imp.mod
+### 13. tempfile.file.imp.mod
 
 - **Target:** `commonMain.kotlin.io.github.kotlinmania.tempfile.file.imp.Mod [STUB]`
 - **Similarity:** 0.00
@@ -190,5 +190,5 @@ do not treat them as the next implementation target by default.
 
 | Source | Target | Path |
 |--------|--------|------|
-| `lib` | `tempfile.Lib` | `lib` |
+| `tempfile.lib` | `tempfile.Lib` | `tempfile/src/lib` |
 
