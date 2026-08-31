@@ -1,4 +1,4 @@
-// port-lint: source spooled.rs
+// port-lint: source tempfile/src/spooled.rs
 package io.github.kotlinmania.tempfile
 
 import io.github.kotlinmania.tempfile.file.NamedTempFile
