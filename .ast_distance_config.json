@@ -2,7 +2,7 @@
   "type": "port",
   "name": "tempfile-kotlin",
   "source": {
-    "path": "tmp/tempfile/src",
+    "path": "tmp",
     "lang": "rust"
   },
   "target": {
