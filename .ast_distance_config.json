@@ -16,6 +16,24 @@
     "lint": true
   },
   "reexport_modules": [
-    "lib"
+    "lib",
+    "lib.rs",
+    "tempfile/src/lib.rs",
+    "file/mod",
+    "file.mod",
+    "file/mod.rs",
+    "tempfile/src/file/mod.rs",
+    "file/imp/mod",
+    "file.imp.mod",
+    "file/imp/mod.rs",
+    "tempfile/src/file/imp/mod.rs",
+    "dir/mod",
+    "dir.mod",
+    "dir/mod.rs",
+    "tempfile/src/dir/mod.rs",
+    "dir/imp/mod",
+    "dir.imp.mod",
+    "dir/imp/mod.rs",
+    "tempfile/src/dir/imp/mod.rs"
   ]
 }
