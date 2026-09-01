@@ -2,15 +2,12 @@
 package io.github.kotlinmania.tempfile.file
 
 import io.github.kotlinmania.tempfile.Builder
-import io.github.kotlinmania.tempfile.dir.TempDir
 import io.github.kotlinmania.tempfile.dir.tempdir
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class NamedTempFileTest {
-
     @Test
     fun testPrefix() {
         val tmpfile = NamedTempFile.withPrefix("prefix").getOrThrow()
@@ -88,12 +85,13 @@ class NamedTempFileTest {
 
     @Test
     fun testCustomNamed() {
-        val tmpfile = Builder()
-            .prefix("tmp_test_")
-            .suffix(".rs")
-            .randBytes(12)
-            .tempfile()
-            .getOrThrow()
+        val tmpfile =
+            Builder()
+                .prefix("tmp_test_")
+                .suffix(".rs")
+                .randBytes(12)
+                .tempfile()
+                .getOrThrow()
 
         val name = tmpfile.path().substringAfterLast('/').substringAfterLast('\\')
         assertTrue(name.startsWith("tmp_test_"))
@@ -140,10 +138,11 @@ class NamedTempFileTest {
         for (case in 0 until 4) {
             val inBuilder = (case and 1) > 0
             val toggle = (case and 2) > 0
-            val tmpfile = Builder()
-                .disableCleanup(inBuilder)
-                .tempfile()
-                .getOrThrow()
+            val tmpfile =
+                Builder()
+                    .disableCleanup(inBuilder)
+                    .tempfile()
+                    .getOrThrow()
 
             if (toggle) {
                 tmpfile.disableCleanup(!inBuilder)
@@ -190,7 +189,6 @@ class NamedTempFileTest {
         pathHandle.close()
         assertFalse(fileExists(path))
     }
-
 
     @Test
     fun testTempPathPersist() {

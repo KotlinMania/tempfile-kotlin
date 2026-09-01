@@ -8,11 +8,17 @@ import io.github.kotlinmania.tempfile.withErrPath
 @JsNonModule
 private external object NodeFs {
     fun closeSync(fd: Int)
+
     fun openSync(path: String, flags: String): Int
+
     fun unlinkSync(path: String)
+
     fun existsSync(path: String): Boolean
+
     fun renameSync(oldPath: String, newPath: String)
+
     fun readFileSync(path: String): dynamic
+
     fun writeFileSync(path: String, data: dynamic)
 }
 
@@ -29,7 +35,6 @@ internal actual fun removeFile(path: String): Result<Unit> =
 
 internal actual fun fileExists(path: String): Boolean =
     if (path.isEmpty()) false else runCatching { NodeFs.existsSync(path) }.getOrDefault(false)
-
 
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> =
     runCatching {

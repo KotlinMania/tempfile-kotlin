@@ -144,7 +144,8 @@ class TempDir internal constructor(
             permissions: Int? = null,
             disableCleanup: Boolean = false,
         ): Result<TempDir> =
-            io.github.kotlinmania.tempfile.dir.imp.create(path, permissions, disableCleanup)
+            io.github.kotlinmania.tempfile.dir.imp
+                .create(path, permissions, disableCleanup)
 
         /**
          * Attempts to make a temporary directory with the specified

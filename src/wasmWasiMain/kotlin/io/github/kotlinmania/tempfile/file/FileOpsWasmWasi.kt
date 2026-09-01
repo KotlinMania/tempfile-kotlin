@@ -30,12 +30,12 @@ internal actual fun removeFile(path: String): Result<Unit> {
 internal actual fun fileExists(path: String): Boolean =
     if (path.isEmpty()) false else path in createdFiles
 
-
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> {
-    val data = createdFiles[oldPath] ?: return Result
-        .failure<Unit>(
-            IoException(IoErrorKind.NotFound, "persistFile: $oldPath not found"),
-        ).withErrPath { oldPath }
+    val data =
+        createdFiles[oldPath] ?: return Result
+            .failure<Unit>(
+                IoException(IoErrorKind.NotFound, "persistFile: $oldPath not found"),
+            ).withErrPath { oldPath }
 
     if (!overwrite && newPath in createdFiles) {
         return Result
@@ -51,10 +51,11 @@ internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boo
 internal actual fun keepFile(path: String): Result<Unit> = Result.success(Unit)
 
 internal actual fun readBytes(path: String): Result<ByteArray> {
-    val data = createdFiles[path] ?: return Result
-        .failure<ByteArray>(
-            IoException(IoErrorKind.NotFound, "readBytes: $path not found"),
-        ).withErrPath { path }
+    val data =
+        createdFiles[path] ?: return Result
+            .failure<ByteArray>(
+                IoException(IoErrorKind.NotFound, "readBytes: $path not found"),
+            ).withErrPath { path }
     return Result.success(data)
 }
 

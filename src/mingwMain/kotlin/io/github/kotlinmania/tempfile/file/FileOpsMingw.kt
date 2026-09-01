@@ -56,12 +56,14 @@ internal actual fun removeFile(path: String): Result<Unit> {
 
 @OptIn(ExperimentalForeignApi::class)
 internal actual fun fileExists(path: String): Boolean =
-    if (path.isEmpty()) false
-    else memScoped {
-        val sb = alloc<stat>()
-        stat(path, sb.ptr) == 0
+    if (path.isEmpty()) {
+        false
+    } else {
+        memScoped {
+            val sb = alloc<stat>()
+            stat(path, sb.ptr) == 0
+        }
     }
-
 
 @OptIn(ExperimentalForeignApi::class)
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> {
@@ -102,9 +104,10 @@ internal actual fun readBytes(path: String): Result<ByteArray> {
         val bytes = mutableListOf<Byte>()
         val buf = ByteArray(4096)
         while (true) {
-            val readCount = buf.usePinned { pinned ->
-                fread(pinned.addressOf(0), 1u.convert(), 4096u.convert(), fp).toInt()
-            }
+            val readCount =
+                buf.usePinned { pinned ->
+                    fread(pinned.addressOf(0), 1u.convert(), 4096u.convert(), fp).toInt()
+                }
             if (readCount <= 0) break
             for (i in 0 until readCount) {
                 bytes.add(buf[i])
@@ -127,9 +130,10 @@ internal actual fun writeBytes(path: String, bytes: ByteArray): Result<Unit> {
     }
     try {
         if (bytes.isNotEmpty()) {
-            val written = bytes.usePinned { pinned ->
-                fwrite(pinned.addressOf(0), 1u.convert(), bytes.size.toULong().convert(), fp).toInt()
-            }
+            val written =
+                bytes.usePinned { pinned ->
+                    fwrite(pinned.addressOf(0), 1u.convert(), bytes.size.toULong().convert(), fp).toInt()
+                }
             if (written < bytes.size) {
                 return Result
                     .failure<Unit>(

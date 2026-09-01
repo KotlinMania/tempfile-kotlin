@@ -28,7 +28,9 @@ class PathPersistError(
     val path: TempPath,
 ) : RuntimeException("failed to persist temporary file path: $error", error) {
     fun fmt(): String = toString()
+
     fun source(): Throwable? = error
+
     override fun toString(): String = "failed to persist temporary file path: $error"
 }
 
@@ -40,10 +42,11 @@ class PersistError(
     val file: Any?,
 ) : RuntimeException("failed to persist temporary file: $error", error) {
     fun fmt(): String = toString()
+
     fun source(): Throwable? = error
+
     override fun toString(): String = "failed to persist temporary file: $error"
 }
-
 
 /**
  * A path to a named temporary file without an open file handle.
@@ -142,8 +145,9 @@ class TempPath internal constructor(
             }
             var p = path
             if (!p.startsWith("/") && !p.contains(":\\")) {
-                val cwd = currentDir()
-                    ?: return Result.failure(IoException(IoErrorKind.NotFound, "cannot determine current working directory"))
+                val cwd =
+                    currentDir()
+                        ?: return Result.failure(IoException(IoErrorKind.NotFound, "cannot determine current working directory"))
                 p = joinPath(cwd, p)
             }
             return Result.success(TempPath(p, disableCleanup = false))

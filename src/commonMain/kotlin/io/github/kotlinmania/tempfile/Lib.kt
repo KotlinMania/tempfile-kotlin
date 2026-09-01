@@ -2,9 +2,9 @@
 package io.github.kotlinmania.tempfile
 
 import io.github.kotlinmania.tempfile.dir.TempDir
+import io.github.kotlinmania.tempfile.file.NamedTempFile
 import io.github.kotlinmania.tempfile.dir.tempdir as dirTempdir
 import io.github.kotlinmania.tempfile.dir.tempdirIn as dirTempdirIn
-import io.github.kotlinmania.tempfile.file.NamedTempFile
 import io.github.kotlinmania.tempfile.file.tempfile as fileTempfile
 import io.github.kotlinmania.tempfile.file.tempfileIn as fileTempfileIn
 
@@ -34,4 +34,3 @@ public fun tempdir(): Result<TempDir> = dirTempdir()
  * Create a new temporary directory inside the specified [dir].
  */
 public fun tempdirIn(dir: String): Result<TempDir> = dirTempdirIn(dir)
-

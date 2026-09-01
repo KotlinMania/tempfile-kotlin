@@ -88,5 +88,3 @@ private fun posixLstatIsDir(path: String): Boolean? =
         val mode = sb.st_mode.toInt()
         (mode and S_IFDIR) != 0
     }
-
-
