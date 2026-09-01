@@ -1,4 +1,4 @@
-// port-lint: source tempfile/src/env.rs
+// port-lint: source env.rs
 package io.github.kotlinmania.tempfile
 
 import kotlin.concurrent.atomics.AtomicReference

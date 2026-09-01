@@ -1,4 +1,4 @@
-// port-lint: source tempfile/src/file/imp/unix.rs
+// port-lint: source file/imp/unix.rs
 package io.github.kotlinmania.tempfile.file.imp
 
 import io.github.kotlinmania.tempfile.file.NamedTempFile
