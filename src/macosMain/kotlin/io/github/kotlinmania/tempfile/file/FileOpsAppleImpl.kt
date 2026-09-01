@@ -30,13 +30,14 @@ internal actual fun appleReadBytes(path: String): Result<ByteArray> =
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 internal actual fun appleWriteBytes(path: String, bytes: ByteArray): Result<Unit> =
     runCatching {
-        val data = if (bytes.isEmpty()) {
-            NSData()
-        } else {
-            bytes.usePinned { pinned ->
-                NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong().convert())
+        val data =
+            if (bytes.isEmpty()) {
+                NSData()
+            } else {
+                bytes.usePinned { pinned ->
+                    NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong().convert())
+                }
             }
-        }
         val success = data.writeToFile(path, atomically = true)
         if (!success) {
             throw IoException(IoErrorKind.Other, "failed to write data to $path")

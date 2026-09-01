@@ -205,6 +205,7 @@ public class SpooledTempFile(
 
     companion object {
         public fun new(maxSize: Int): SpooledTempFile = SpooledTempFile(maxSize)
+
         public fun newIn(maxSize: Int, dir: String): SpooledTempFile = SpooledTempFile(maxSize, dir)
     }
 }
@@ -213,11 +214,12 @@ public class SpooledTempFile(
  * Write a cursor buffer into a temporary file.
  */
 internal fun cursorToTempfile(bytes: ByteArray, dir: String?): Result<NamedTempFile<String>> {
-    val fileRes = if (dir != null) {
-        NamedTempFile.newIn(dir)
-    } else {
-        NamedTempFile.new()
-    }
+    val fileRes =
+        if (dir != null) {
+            NamedTempFile.newIn(dir)
+        } else {
+            NamedTempFile.new()
+        }
     return fileRes.flatMap { tf ->
         writeBytes(tf.path(), bytes).map { tf }
     }
@@ -235,5 +237,3 @@ public fun spooledTempfileIn(maxSize: Int, dir: String): SpooledTempFile = Spool
 
 private inline fun <T, R> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> =
     fold(onSuccess = transform, onFailure = { Result.failure(it) })
-
-

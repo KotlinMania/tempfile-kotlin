@@ -9,7 +9,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class TempFileTest {
-
     @Test
     fun testBasic() {
         val tmpfile = tempfile().getOrThrow()
@@ -18,7 +17,6 @@ class TempFileTest {
         tmpfile.close()
         assertFalse(fileExists(path))
     }
-
 
     @Test
     fun testCleanup() {

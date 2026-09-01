@@ -7,6 +7,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSFileManager
 
 internal expect fun appleReadBytes(path: String): Result<ByteArray>
+
 internal expect fun appleWriteBytes(path: String, bytes: ByteArray): Result<Unit>
 
 @OptIn(ExperimentalForeignApi::class)

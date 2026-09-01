@@ -25,7 +25,6 @@ internal actual fun removeFile(path: String): Result<Unit> =
 internal actual fun fileExists(path: String): Boolean =
     if (path.isEmpty()) false else runCatching { Path(path).exists() }.getOrDefault(false)
 
-
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> =
     runCatching {
         val src = Path(oldPath)

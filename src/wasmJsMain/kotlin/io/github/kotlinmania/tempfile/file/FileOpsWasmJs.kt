@@ -38,7 +38,6 @@ internal actual fun removeFile(path: String): Result<Unit> =
 internal actual fun fileExists(path: String): Boolean =
     if (path.isEmpty()) false else runCatching { nodeFsExistsSync(path) }.getOrDefault(false)
 
-
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> =
     runCatching {
         if (!overwrite && nodeFsExistsSync(newPath)) {
