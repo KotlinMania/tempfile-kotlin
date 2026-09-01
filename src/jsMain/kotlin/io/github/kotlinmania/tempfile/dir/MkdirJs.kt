@@ -4,28 +4,52 @@ import io.github.kotlinmania.tempfile.IoErrorKind
 import io.github.kotlinmania.tempfile.IoException
 import io.github.kotlinmania.tempfile.withErrPath
 
-@JsModule("fs")
-@JsNonModule
-private external object NodeFs {
-    fun mkdirSync(path: String)
+private fun getNodeFs(): dynamic = js(
+    "(function(){ try { var r = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : (typeof require === 'function' ? require : null); return r ? r('fs') : null; } catch (e) { return null; } })()",
+)
 
-    fun rmSync(path: String, options: dynamic)
+internal val inMemoryDirs = mutableSetOf<String>()
+internal val inMemoryFiles = mutableMapOf<String, ByteArray>()
 
-    fun existsSync(path: String): Boolean
+internal actual fun createTempDirAt(path: String): Result<Unit> {
+    val fs = getNodeFs()
+    if (fs != null) {
+        return runCatching {
+            fs.mkdirSync(path)
+            Unit
+        }.mapErrorToIoException(path)
+    }
+    if (inMemoryDirs.contains(path)) {
+        return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "Directory already exists: $path")).withErrPath { path }
+    }
+    inMemoryDirs.add(path)
+    return Result.success(Unit)
 }
 
-internal actual fun createTempDirAt(path: String): Result<Unit> = runCatching { NodeFs.mkdirSync(path) }.mapErrorToIoException(path)
-
-internal actual fun removeDirAll(path: String): Result<Unit> =
-    runCatching {
-        if (NodeFs.existsSync(path)) {
-            val opts: dynamic = js("({ recursive: true, force: true })")
-            NodeFs.rmSync(path, opts)
+internal actual fun removeDirAll(path: String): Result<Unit> {
+    val fs = getNodeFs()
+    if (fs != null) {
+        return runCatching {
+            if (fs.existsSync(path) as Boolean) {
+                val opts: dynamic = js("({ recursive: true, force: true })")
+                fs.rmSync(path, opts)
+            }
+            Unit
+        }.mapErrorToIoException(path)
+    }
+    inMemoryDirs.remove(path)
+    inMemoryDirs.removeAll { it.startsWith(path) }
+    inMemoryFiles.keys.toList().forEach { k ->
+        if (k.startsWith(path)) {
+            inMemoryFiles.remove(k)
         }
-    }.mapErrorToIoException(path)
+    }
+    return Result.success(Unit)
+}
 
 private fun Result<Unit>.mapErrorToIoException(path: String): Result<Unit> {
     val err = exceptionOrNull() ?: return this
+    if (err is IoException) return this
     val code: String = (err.asDynamic().code as? String) ?: ""
     val kind =
         when (code) {

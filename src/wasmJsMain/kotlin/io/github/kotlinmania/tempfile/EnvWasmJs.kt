@@ -1,10 +1,12 @@
 // Platform actual for [systemTempDir] on Wasm-JS: delegate to Node's
-// `os.tmpdir()` via interop. Browsers don't have a real tempdir.
+// `os.tmpdir()` via interop when available, or fallback to /tmp.
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
 package io.github.kotlinmania.tempfile
 
-private fun nodeOsTmpdir(): String =
-    js("require('os').tmpdir()")
+private fun isNodeAvailable(): Boolean = js("typeof require === 'function' || typeof __non_webpack_require__ === 'function'")
 
-actual fun systemTempDir(): String = nodeOsTmpdir()
+private fun nodeOsTmpdir(): String =
+    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('os').tmpdir()")
+
+actual fun systemTempDir(): String = if (isNodeAvailable()) nodeOsTmpdir() else "/tmp"
