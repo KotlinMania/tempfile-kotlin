@@ -6,34 +6,56 @@ import io.github.kotlinmania.tempfile.IoErrorKind
 import io.github.kotlinmania.tempfile.IoException
 import io.github.kotlinmania.tempfile.withErrPath
 
+internal val wasmInMemoryDirs = mutableSetOf<String>()
+internal val wasmInMemoryFiles = mutableMapOf<String, ByteArray>()
+
+private fun isNodeFsAvailable(): Boolean = js("typeof require === 'function' || typeof __non_webpack_require__ === 'function'")
+
 private fun nodeFsMkdirSync(path: String) {
-    js("require('fs').mkdirSync(path)")
+    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').mkdirSync(path)")
 }
 
 private fun nodeFsRmSyncRecursive(path: String) {
-    js("require('fs').rmSync(path, { recursive: true, force: true })")
+    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').rmSync(path, { recursive: true, force: true })")
 }
 
 private fun nodeFsExistsSync(path: String): Boolean =
-    js("require('fs').existsSync(path)")
+    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').existsSync(path)")
 
 private fun nodeErrorCode(e: Throwable): String? {
     val msg = e.message ?: return null
-    // Node 'fs' errors stringify as e.g. "ENOENT: no such file or directory, mkdir '/x'".
     val idx = msg.indexOf(':')
     return if (idx > 0) msg.substring(0, idx) else null
 }
 
-internal actual fun createTempDirAt(path: String): Result<Unit> =
-    runCatching { nodeFsMkdirSync(path) }
-        .mapErrorToIoException(path)
+internal actual fun createTempDirAt(path: String): Result<Unit> {
+    if (isNodeFsAvailable()) {
+        return runCatching { nodeFsMkdirSync(path) }.mapErrorToIoException(path)
+    }
+    if (wasmInMemoryDirs.contains(path)) {
+        return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "Directory already exists: $path")).withErrPath { path }
+    }
+    wasmInMemoryDirs.add(path)
+    return Result.success(Unit)
+}
 
-internal actual fun removeDirAll(path: String): Result<Unit> =
-    runCatching {
-        if (nodeFsExistsSync(path)) {
-            nodeFsRmSyncRecursive(path)
+internal actual fun removeDirAll(path: String): Result<Unit> {
+    if (isNodeFsAvailable()) {
+        return runCatching {
+            if (nodeFsExistsSync(path)) {
+                nodeFsRmSyncRecursive(path)
+            }
+        }.mapErrorToIoException(path)
+    }
+    wasmInMemoryDirs.remove(path)
+    wasmInMemoryDirs.removeAll { it.startsWith(path) }
+    wasmInMemoryFiles.keys.toList().forEach { k ->
+        if (k.startsWith(path)) {
+            wasmInMemoryFiles.remove(k)
         }
-    }.mapErrorToIoException(path)
+    }
+    return Result.success(Unit)
+}
 
 private fun Result<Unit>.mapErrorToIoException(path: String): Result<Unit> {
     val err = exceptionOrNull() ?: return this
