@@ -1,14 +1,9 @@
 // port-lint: source dir/imp/any.rs
 package io.github.kotlinmania.tempfile.dir.imp
 
-import io.github.kotlinmania.tempfile.IoErrorKind
-import io.github.kotlinmania.tempfile.IoException
 import io.github.kotlinmania.tempfile.dir.TempDir
 import io.github.kotlinmania.tempfile.dir.createTempDirAt
 import io.github.kotlinmania.tempfile.withErrPath
-
-private fun <T> notSupported(msg: String): Result<T> =
-    Result.failure(IoException(IoErrorKind.Other, msg))
 
 /**
  * Generic platform directory creation implementation.

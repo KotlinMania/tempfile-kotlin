@@ -79,12 +79,14 @@ public class SpooledTempFile(
     /**
      * Consumes and returns the inner [SpooledData].
      */
-    public fun intoInner(): SpooledData =
-        if (rolled && diskPath != null) {
-            SpooledData.OnDisk(diskPath!!)
+    public fun intoInner(): SpooledData {
+        val currentDiskPath = diskPath
+        return if (rolled && currentDiskPath != null) {
+            SpooledData.OnDisk(currentDiskPath)
         } else {
             SpooledData.InMemory(data.copyOf(position))
         }
+    }
 
     /**
      * Convert into a regular temporary file, writing it to disk if necessary.

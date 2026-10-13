@@ -9,18 +9,19 @@ import io.github.kotlinmania.tempfile.withErrPath
 internal val wasmInMemoryDirs = mutableSetOf<String>()
 internal val wasmInMemoryFiles = mutableMapOf<String, ByteArray>()
 
-private fun isNodeFsAvailable(): Boolean = js("typeof require === 'function' || typeof __non_webpack_require__ === 'function'")
+private fun isNodeFsAvailable(): Boolean =
+    js("typeof process !== 'undefined' && (typeof process.getBuiltinModule === 'function' || typeof globalThis.require === 'function')")
 
 private fun nodeFsMkdirSync(path: String) {
-    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').mkdirSync(path)")
+    js("(typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('fs') : globalThis.require('fs')).mkdirSync(path)")
 }
 
 private fun nodeFsRmSyncRecursive(path: String) {
-    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').rmSync(path, { recursive: true, force: true })")
+    js("(typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('fs') : globalThis.require('fs')).rmSync(path, { recursive: true, force: true })")
 }
 
 private fun nodeFsExistsSync(path: String): Boolean =
-    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').existsSync(path)")
+    js("(typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('fs') : globalThis.require('fs')).existsSync(path)")
 
 private fun nodeErrorCode(e: Throwable): String? {
     val msg = e.message ?: return null
