@@ -5,6 +5,23 @@ import io.github.kotlinmania.tempfile.file.NamedTempFile
 import io.github.kotlinmania.tempfile.file.writeBytes
 
 /**
+ * Enumeration of possible methods to seek within an I/O stream.
+ */
+public sealed class SeekFrom {
+    public data class Start(
+        public val position: Long,
+    ) : SeekFrom()
+
+    public data class End(
+        public val offset: Long,
+    ) : SeekFrom()
+
+    public data class Current(
+        public val offset: Long,
+    ) : SeekFrom()
+}
+
+/**
  * A wrapper for the two states of a [SpooledTempFile]. Either:
  * 1. An in-memory buffer.
  * 2. A temporary file on disk.
@@ -38,7 +55,8 @@ public class SpooledTempFile(
     public val dir: String? = null,
 ) {
     private var data: ByteArray = ByteArray(0)
-    private var position: Int = 0
+    private var length: Int = 0
+    private var position: Long = 0L
     private var rolled: Boolean = false
     private var diskPath: String? = null
     private var tempFileHandle: NamedTempFile<String>? = null
@@ -53,8 +71,8 @@ public class SpooledTempFile(
      */
     public fun roll(): Result<Unit> {
         if (!rolled) {
-            val res = cursorToTempfile(data.copyOf(position), dir)
-            if (res.isFailure) return Result.failure(res.exceptionOrNull()!!)
+            val res = cursorToTempfile(data.copyOf(length), dir)
+            if (res.isFailure) return Result.failure(res.exceptionOrNull() ?: IoException(IoErrorKind.Other, "roll failed"))
             val tf = res.getOrThrow()
             tempFileHandle = tf
             diskPath = tf.path()
@@ -66,14 +84,20 @@ public class SpooledTempFile(
     /**
      * Truncate the file to the specified size.
      */
-    public fun setLen(size: Long) {
+    public fun setLen(size: Long): Result<Unit> {
         if (size > maxSize.toLong() && !rolled) {
-            roll()
+            val rollRes = roll()
+            if (rollRes.isFailure) return rollRes
         }
-        data = data.copyOf(size.toInt())
-        if (position > data.size) {
-            position = data.size
+        val targetSize = size.toInt()
+        data = data.copyOf(targetSize)
+        length = targetSize
+        if (rolled) {
+            tempFileHandle?.let { tf ->
+                writeBytes(tf.path(), data.copyOf(length))
+            }
         }
+        return Result.success(Unit)
     }
 
     /**
@@ -84,7 +108,7 @@ public class SpooledTempFile(
         return if (rolled && currentDiskPath != null) {
             SpooledData.OnDisk(currentDiskPath)
         } else {
-            SpooledData.InMemory(data.copyOf(position))
+            SpooledData.InMemory(data.copyOf(length))
         }
     }
 
@@ -94,18 +118,31 @@ public class SpooledTempFile(
     public fun intoFile(): Result<NamedTempFile<String>> {
         if (!rolled) {
             val res = roll()
-            if (res.isFailure) return Result.failure(res.exceptionOrNull()!!)
+            if (res.isFailure) return Result.failure(res.exceptionOrNull() ?: IoException(IoErrorKind.Other, "roll failed"))
         }
-        return Result.success(tempFileHandle ?: cursorToTempfile(data.copyOf(position), dir).getOrThrow())
+        val tf = tempFileHandle ?: return Result.failure(IoException(IoErrorKind.NotFound, "file not found"))
+        return Result.success(tf)
     }
+
+    /**
+     * Close the underlying temporary file if rolled over.
+     */
+    public fun close(): Result<Unit> {
+        val tf = tempFileHandle
+        tempFileHandle = null
+        diskPath = null
+        return tf?.close() ?: Result.success(Unit)
+    }
+
+    public fun drop(): Result<Unit> = close()
 
     /**
      * Reads bytes into the destination buffer.
      */
     public fun read(buf: ByteArray): Int {
-        if (position >= data.size) return 0
-        val toRead = minOf(buf.size, data.size - position)
-        data.copyInto(buf, destinationOffset = 0, startIndex = position, endIndex = position + toRead)
+        if (position >= length) return 0
+        val toRead = minOf(buf.size, (length - position).toInt())
+        data.copyInto(buf, destinationOffset = 0, startIndex = position.toInt(), endIndex = position.toInt() + toRead)
         position += toRead
         return toRead
     }
@@ -128,8 +165,9 @@ public class SpooledTempFile(
      */
     public fun readToEnd(buf: MutableList<Byte>): Int {
         var count = 0
-        while (position < data.size) {
-            buf.add(data[position++])
+        while (position < length) {
+            buf.add(data[position.toInt()])
+            position++
             count++
         }
         return count
@@ -139,12 +177,12 @@ public class SpooledTempFile(
      * Reads all remaining bytes as a UTF-8 string into [buf].
      */
     public fun readToString(buf: StringBuilder): Int {
-        if (position >= data.size) return 0
-        val remaining = data.copyOfRange(position, data.size)
+        if (position >= length) return 0
+        val remaining = data.copyOfRange(position.toInt(), length)
         val text = remaining.decodeToString()
         buf.append(text)
         val count = remaining.size
-        position = data.size
+        position = length.toLong()
         return count
     }
 
@@ -152,6 +190,9 @@ public class SpooledTempFile(
      * Reads the exact number of bytes required to fill [buf].
      */
     public fun readExact(buf: ByteArray): Result<Unit> {
+        if (position + buf.size > length) {
+            return Result.failure(IoException(IoErrorKind.UnexpectedEof, "failed to fill whole buffer"))
+        }
         val count = read(buf)
         return if (count == buf.size) {
             Result.success(Unit)
@@ -164,15 +205,26 @@ public class SpooledTempFile(
      * Writes the given bytes into the spooled temporary file.
      */
     public fun write(bytes: ByteArray): Int {
-        if (position + bytes.size > maxSize && !rolled) {
-            roll()
+        if (position > Int.MAX_VALUE.toLong() - bytes.size) {
+            throw IoException(IoErrorKind.InvalidInput, "write overflow")
         }
-        val needed = position + bytes.size
-        if (needed > data.size) {
-            data = data.copyOf(maxOf(needed, data.size * 2))
+        val endPos = (position + bytes.size).toInt()
+        if (endPos > maxSize && !rolled) {
+            roll().getOrThrow()
         }
-        bytes.copyInto(data, destinationOffset = position)
-        position += bytes.size
+        if (endPos > data.size) {
+            data = data.copyOf(maxOf(endPos, data.size * 2))
+        }
+        bytes.copyInto(data, destinationOffset = position.toInt())
+        position = endPos.toLong()
+        if (endPos > length) {
+            length = endPos
+        }
+        if (rolled) {
+            tempFileHandle?.let { tf ->
+                writeBytes(tf.path(), data.copyOf(length))
+            }
+        }
         return bytes.size
     }
 
@@ -193,17 +245,38 @@ public class SpooledTempFile(
     public fun flush(): Result<Unit> = Result.success(Unit)
 
     /**
-     * Seeks to a given position.
+     * Seeks to a given position using [SeekFrom].
      */
-    public fun seek(offset: Long): Long {
-        position = offset.toInt().coerceIn(0, data.size)
-        return position.toLong()
+    public fun seek(pos: SeekFrom): Result<Long> {
+        val newPos =
+            when (pos) {
+                is SeekFrom.Start -> pos.position
+                is SeekFrom.End -> length.toLong() + pos.offset
+                is SeekFrom.Current -> position + pos.offset
+            }
+        if (newPos < 0) {
+            return Result.failure(
+                IoException(IoErrorKind.InvalidInput, "invalid seek to a negative or overflowing position"),
+            )
+        }
+        position = newPos
+        return Result.success(position)
     }
+
+    /**
+     * Seeks to a given offset from start.
+     */
+    public fun seek(offset: Long): Long = seek(SeekFrom.Start(offset)).getOrThrow()
+
+    /**
+     * Returns the current stream position as a [Result].
+     */
+    public fun streamPosition(): Result<Long> = Result.success(position)
 
     /**
      * Current position in the spooled file.
      */
-    public fun position(): Long = position.toLong()
+    public fun position(): Long = position
 
     companion object {
         public fun new(maxSize: Int): SpooledTempFile = SpooledTempFile(maxSize)

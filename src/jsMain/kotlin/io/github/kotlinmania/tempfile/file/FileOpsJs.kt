@@ -4,6 +4,7 @@ import io.github.kotlinmania.tempfile.IoErrorKind
 import io.github.kotlinmania.tempfile.IoException
 import io.github.kotlinmania.tempfile.dir.inMemoryDirs
 import io.github.kotlinmania.tempfile.dir.inMemoryFiles
+import io.github.kotlinmania.tempfile.dir.isDirCreated
 import io.github.kotlinmania.tempfile.withErrPath
 
 private fun getNodeFs(): dynamic =
@@ -19,6 +20,13 @@ internal actual fun createNamedFile(path: String): Result<Unit> {
             fs.closeSync(fd)
             Unit
         }.mapErrorToIoException(path)
+    }
+    val parent = path.substringBeforeLast('/', "")
+    if (parent.isNotEmpty() && !isDirCreated(parent)) {
+        return Result
+            .failure<Unit>(
+                IoException(IoErrorKind.NotFound, "createNamedFile: parent directory not found: $parent"),
+            ).withErrPath { path }
     }
     if (inMemoryFiles.containsKey(path)) {
         return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "File already exists: $path")).withErrPath { path }
@@ -48,7 +56,8 @@ internal actual fun fileExists(path: String): Boolean {
     if (fs != null) {
         return runCatching { fs.existsSync(path) as Boolean }.getOrDefault(false)
     }
-    return inMemoryFiles.containsKey(path) || inMemoryDirs.contains(path)
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    return inMemoryFiles.containsKey(path) || inMemoryDirs.contains(normalized) || normalized == "/tmp"
 }
 
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> {

@@ -4,6 +4,7 @@ package io.github.kotlinmania.tempfile.file
 import io.github.kotlinmania.tempfile.Builder
 import io.github.kotlinmania.tempfile.dir.tempdir
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -251,5 +252,51 @@ class NamedTempFileTest {
         assertTrue(fileExists(tmpFilePath2), "Test file 2 has been deleted before closing TempDir")
 
         tmpDir.close().getOrThrow()
+    }
+
+    @Test
+    fun testMakeFnmut() {
+        var count = 0
+        val tmpfile =
+            Builder()
+                .make { path ->
+                    count++
+                    Result.success(path)
+                }.getOrThrow()
+        assertEquals(1, count)
+        assertTrue(fileExists(tmpfile.path()))
+        tmpfile.close()
+    }
+
+    @Test
+    fun testReopen() {
+        val source = NamedTempFile.new().getOrThrow()
+        val first = source.reopen().getOrThrow()
+        val second = source.reopen().getOrThrow()
+        assertEquals(source.path(), first)
+        assertEquals(source.path(), second)
+        source.close()
+    }
+
+    @Test
+    fun testIntoFile() {
+        val file = NamedTempFile.new().getOrThrow()
+        val path = file.path()
+        assertTrue(fileExists(path))
+        val rawHandle = file.intoFile()
+        assertEquals(path, rawHandle)
+        file.close()
+    }
+
+    @Test
+    fun testWriteAfterClose() {
+        val tmppath = NamedTempFile.new().getOrThrow().intoTempPath()
+        val path = tmppath.path()
+        assertTrue(fileExists(path))
+        tmppath.close()
+        assertFalse(fileExists(path))
+        createNamedFile(path).getOrThrow()
+        assertTrue(fileExists(path))
+        removeFile(path)
     }
 }

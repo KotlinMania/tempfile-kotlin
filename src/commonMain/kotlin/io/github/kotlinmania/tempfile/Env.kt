@@ -28,6 +28,10 @@ fun overrideTempDir(path: String): Result<Unit> {
     return Result.failure(OverrideTempDirAlreadySet(existing))
 }
 
+internal fun resetTempDirForTesting() {
+    DEFAULT_TEMPDIR.store(null)
+}
+
 /**
  * Returns the default temporary directory, used for both temporary directories and files if no
  * directory is explicitly specified.

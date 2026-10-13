@@ -4,6 +4,7 @@ package io.github.kotlinmania.tempfile.file
 
 import io.github.kotlinmania.tempfile.IoErrorKind
 import io.github.kotlinmania.tempfile.IoException
+import io.github.kotlinmania.tempfile.dir.isWasmDirCreated
 import io.github.kotlinmania.tempfile.dir.wasmInMemoryDirs
 import io.github.kotlinmania.tempfile.dir.wasmInMemoryFiles
 import io.github.kotlinmania.tempfile.withErrPath
@@ -36,6 +37,13 @@ internal actual fun createNamedFile(path: String): Result<Unit> {
     if (isNodeFsAvailable()) {
         return runCatching { nodeFsCreateFileSync(path) }.mapErrorToIoException(path)
     }
+    val parent = path.substringBeforeLast('/', "")
+    if (parent.isNotEmpty() && !isWasmDirCreated(parent)) {
+        return Result
+            .failure<Unit>(
+                IoException(IoErrorKind.NotFound, "createNamedFile: parent directory not found: $parent"),
+            ).withErrPath { path }
+    }
     if (wasmInMemoryFiles.containsKey(path)) {
         return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "File already exists: $path")).withErrPath { path }
     }
@@ -59,7 +67,8 @@ internal actual fun fileExists(path: String): Boolean {
     if (isNodeFsAvailable()) {
         return runCatching { nodeFsExistsSync(path) }.getOrDefault(false)
     }
-    return wasmInMemoryFiles.containsKey(path) || wasmInMemoryDirs.contains(path)
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    return wasmInMemoryFiles.containsKey(path) || wasmInMemoryDirs.contains(normalized) || normalized == "/tmp"
 }
 
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> {

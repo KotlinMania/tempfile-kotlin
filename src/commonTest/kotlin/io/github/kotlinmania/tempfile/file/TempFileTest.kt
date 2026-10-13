@@ -28,4 +28,7 @@ class TempFileTest {
         assertFalse(fileExists(path))
         tmpdir.close()
     }
+
+    // Upstream test_pathological_cleaner is Linux-only and tests race conditions between
+    // thread::spawn sync_channel(0) and background file deletion.
 }
