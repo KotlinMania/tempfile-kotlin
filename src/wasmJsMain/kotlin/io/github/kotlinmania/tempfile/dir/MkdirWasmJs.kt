@@ -9,6 +9,11 @@ import io.github.kotlinmania.tempfile.withErrPath
 internal val wasmInMemoryDirs = mutableSetOf<String>()
 internal val wasmInMemoryFiles = mutableMapOf<String, ByteArray>()
 
+internal fun isWasmDirCreated(path: String): Boolean {
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    return normalized == "/tmp" || normalized in wasmInMemoryDirs
+}
+
 private fun isNodeFsAvailable(): Boolean =
     js("typeof process !== 'undefined' && (typeof process.getBuiltinModule === 'function' || typeof globalThis.require === 'function')")
 
@@ -33,10 +38,18 @@ internal actual fun createTempDirAt(path: String): Result<Unit> {
     if (isNodeFsAvailable()) {
         return runCatching { nodeFsMkdirSync(path) }.mapErrorToIoException(path)
     }
-    if (wasmInMemoryDirs.contains(path)) {
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    val parent = normalized.substringBeforeLast('/', "")
+    if (parent.isNotEmpty() && !isWasmDirCreated(parent)) {
+        return Result
+            .failure<Unit>(
+                IoException(IoErrorKind.NotFound, "createTempDirAt: parent directory does not exist: $parent"),
+            ).withErrPath { path }
+    }
+    if (wasmInMemoryDirs.contains(normalized)) {
         return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "Directory already exists: $path")).withErrPath { path }
     }
-    wasmInMemoryDirs.add(path)
+    wasmInMemoryDirs.add(normalized)
     return Result.success(Unit)
 }
 
@@ -48,10 +61,12 @@ internal actual fun removeDirAll(path: String): Result<Unit> {
             }
         }.mapErrorToIoException(path)
     }
-    wasmInMemoryDirs.remove(path)
-    wasmInMemoryDirs.removeAll { it.startsWith(path) }
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    wasmInMemoryDirs.remove(normalized)
+    val prefix = "$normalized/"
+    wasmInMemoryDirs.removeAll { it.startsWith(prefix) }
     wasmInMemoryFiles.keys.toList().forEach { k ->
-        if (k.startsWith(path)) {
+        if (k.startsWith(prefix) || k == normalized) {
             wasmInMemoryFiles.remove(k)
         }
     }

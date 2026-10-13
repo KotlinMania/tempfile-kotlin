@@ -2,11 +2,26 @@ package io.github.kotlinmania.tempfile.file
 
 import io.github.kotlinmania.tempfile.IoErrorKind
 import io.github.kotlinmania.tempfile.IoException
+import io.github.kotlinmania.tempfile.dir.isDirCreated
 import io.github.kotlinmania.tempfile.withErrPath
 
 private val createdFiles: MutableMap<String, ByteArray> = mutableMapOf()
 
+internal fun removeFilesUnder(prefix: String) {
+    val toRemove = createdFiles.keys.filter { it.startsWith(prefix) }
+    for (k in toRemove) {
+        createdFiles.remove(k)
+    }
+}
+
 internal actual fun createNamedFile(path: String): Result<Unit> {
+    val parent = path.substringBeforeLast('/', "")
+    if (parent.isNotEmpty() && !isDirCreated(parent)) {
+        return Result
+            .failure<Unit>(
+                IoException(IoErrorKind.NotFound, "createNamedFile: parent directory not found: $parent"),
+            ).withErrPath { path }
+    }
     if (path in createdFiles) {
         return Result
             .failure<Unit>(
@@ -28,7 +43,7 @@ internal actual fun removeFile(path: String): Result<Unit> {
 }
 
 internal actual fun fileExists(path: String): Boolean =
-    if (path.isEmpty()) false else path in createdFiles
+    if (path.isEmpty()) false else path in createdFiles || isDirCreated(path)
 
 internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boolean): Result<Unit> {
     val data =

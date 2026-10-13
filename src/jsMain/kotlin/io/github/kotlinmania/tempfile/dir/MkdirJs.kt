@@ -12,6 +12,11 @@ private fun getNodeFs(): dynamic =
 internal val inMemoryDirs = mutableSetOf<String>()
 internal val inMemoryFiles = mutableMapOf<String, ByteArray>()
 
+internal fun isDirCreated(path: String): Boolean {
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    return normalized == "/tmp" || normalized in inMemoryDirs
+}
+
 internal actual fun createTempDirAt(path: String): Result<Unit> {
     val fs = getNodeFs()
     if (fs != null) {
@@ -20,10 +25,18 @@ internal actual fun createTempDirAt(path: String): Result<Unit> {
             Unit
         }.mapErrorToIoException(path)
     }
-    if (inMemoryDirs.contains(path)) {
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    val parent = normalized.substringBeforeLast('/', "")
+    if (parent.isNotEmpty() && !isDirCreated(parent)) {
+        return Result
+            .failure<Unit>(
+                IoException(IoErrorKind.NotFound, "createTempDirAt: parent directory does not exist: $parent"),
+            ).withErrPath { path }
+    }
+    if (inMemoryDirs.contains(normalized)) {
         return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "Directory already exists: $path")).withErrPath { path }
     }
-    inMemoryDirs.add(path)
+    inMemoryDirs.add(normalized)
     return Result.success(Unit)
 }
 
@@ -38,10 +51,12 @@ internal actual fun removeDirAll(path: String): Result<Unit> {
             Unit
         }.mapErrorToIoException(path)
     }
-    inMemoryDirs.remove(path)
-    inMemoryDirs.removeAll { it.startsWith(path) }
+    val normalized = if (path.length > 1 && path.endsWith("/")) path.dropLast(1) else path
+    inMemoryDirs.remove(normalized)
+    val prefix = "$normalized/"
+    inMemoryDirs.removeAll { it.startsWith(prefix) }
     inMemoryFiles.keys.toList().forEach { k ->
-        if (k.startsWith(path)) {
+        if (k.startsWith(prefix) || k == normalized) {
             inMemoryFiles.remove(k)
         }
     }
