@@ -8,21 +8,22 @@ import io.github.kotlinmania.tempfile.dir.wasmInMemoryDirs
 import io.github.kotlinmania.tempfile.dir.wasmInMemoryFiles
 import io.github.kotlinmania.tempfile.withErrPath
 
-private fun isNodeFsAvailable(): Boolean = js("typeof require === 'function' || typeof __non_webpack_require__ === 'function'")
+private fun isNodeFsAvailable(): Boolean =
+    js("typeof process !== 'undefined' && (typeof process.getBuiltinModule === 'function' || typeof globalThis.require === 'function')")
 
 private fun nodeFsCreateFileSync(path: String) {
-    js("const rq = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require; const fs = rq('fs'); const fd = fs.openSync(path, 'wx+'); fs.closeSync(fd);")
+    js("const fs = typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('fs') : globalThis.require('fs'); const fd = fs.openSync(path, 'wx+'); fs.closeSync(fd);")
 }
 
 private fun nodeFsUnlinkSync(path: String) {
-    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').unlinkSync(path)")
+    js("(typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('fs') : globalThis.require('fs')).unlinkSync(path)")
 }
 
 private fun nodeFsExistsSync(path: String): Boolean =
-    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').existsSync(path)")
+    js("(typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('fs') : globalThis.require('fs')).existsSync(path)")
 
 private fun nodeFsRenameSync(oldPath: String, newPath: String) {
-    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('fs').renameSync(oldPath, newPath)")
+    js("(typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('fs') : globalThis.require('fs')).renameSync(oldPath, newPath)")
 }
 
 private fun nodeErrorCode(e: Throwable): String? {
@@ -73,8 +74,9 @@ internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boo
     if (!overwrite && wasmInMemoryFiles.containsKey(newPath)) {
         return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "File already exists: $newPath")).withErrPath { oldPath }
     }
-    val content = wasmInMemoryFiles.remove(oldPath)
-        ?: return Result.failure<Unit>(IoException(IoErrorKind.NotFound, "No such file: $oldPath")).withErrPath { oldPath }
+    val content =
+        wasmInMemoryFiles.remove(oldPath)
+            ?: return Result.failure<Unit>(IoException(IoErrorKind.NotFound, "No such file: $oldPath")).withErrPath { oldPath }
     wasmInMemoryFiles[newPath] = content
     return Result.success(Unit)
 }
@@ -82,8 +84,9 @@ internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boo
 internal actual fun keepFile(path: String): Result<Unit> = Result.success(Unit)
 
 internal actual fun readBytes(path: String): Result<ByteArray> {
-    val data = wasmInMemoryFiles[path]
-        ?: return Result.failure<ByteArray>(IoException(IoErrorKind.NotFound, "No such file: $path")).withErrPath { path }
+    val data =
+        wasmInMemoryFiles[path]
+            ?: return Result.failure<ByteArray>(IoException(IoErrorKind.NotFound, "No such file: $path")).withErrPath { path }
     return Result.success(data)
 }
 

@@ -1,16 +1,11 @@
 // port-lint: source file/imp/other.rs
 package io.github.kotlinmania.tempfile.file.imp
 
-import io.github.kotlinmania.tempfile.IoErrorKind
-import io.github.kotlinmania.tempfile.IoException
 import io.github.kotlinmania.tempfile.file.NamedTempFile
 import io.github.kotlinmania.tempfile.file.TempPath
 import io.github.kotlinmania.tempfile.file.createNamedFile
 import io.github.kotlinmania.tempfile.file.keepFile
 import io.github.kotlinmania.tempfile.file.persistFile
-
-private fun <T> notSupported(msg: String = "operation not supported on this platform"): Result<T> =
-    Result.failure(IoException(IoErrorKind.Other, msg))
 
 internal fun createNamedOther(
     path: String,

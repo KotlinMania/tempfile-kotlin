@@ -5,8 +5,9 @@
 // via `overrideTempDir`.
 package io.github.kotlinmania.tempfile
 
-private fun nodeTmpdir(): String? = js(
-    "(function(){ try { var r = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : (typeof require === 'function' ? require : null); return r ? r('os').tmpdir() : null; } catch (e) { return null; } })()",
-) as? String
+private fun nodeTmpdir(): String? =
+    js(
+        "(function(){ try { var r = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : (typeof require === 'function' ? require : null); return r ? r('os').tmpdir() : null; } catch (e) { return null; } })()",
+    ) as? String
 
 actual fun systemTempDir(): String = nodeTmpdir() ?: "/tmp"

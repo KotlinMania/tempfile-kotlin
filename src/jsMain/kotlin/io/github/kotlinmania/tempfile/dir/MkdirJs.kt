@@ -4,9 +4,10 @@ import io.github.kotlinmania.tempfile.IoErrorKind
 import io.github.kotlinmania.tempfile.IoException
 import io.github.kotlinmania.tempfile.withErrPath
 
-private fun getNodeFs(): dynamic = js(
-    "(function(){ try { var r = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : (typeof require === 'function' ? require : null); return r ? r('fs') : null; } catch (e) { return null; } })()",
-)
+private fun getNodeFs(): dynamic =
+    js(
+        "(function(){ try { var r = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : (typeof require === 'function' ? require : null); return r ? r('fs') : null; } catch (e) { return null; } })()",
+    )
 
 internal val inMemoryDirs = mutableSetOf<String>()
 internal val inMemoryFiles = mutableMapOf<String, ByteArray>()

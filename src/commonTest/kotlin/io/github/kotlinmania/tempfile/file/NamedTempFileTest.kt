@@ -5,6 +5,7 @@ import io.github.kotlinmania.tempfile.Builder
 import io.github.kotlinmania.tempfile.dir.tempdir
 import kotlin.test.Test
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class NamedTempFileTest {
@@ -51,7 +52,8 @@ class NamedTempFileTest {
         val persistPath = oldPath + "_persisted"
         assertTrue(fileExists(oldPath))
 
-        val f = tmpfile.persist(persistPath).getOrThrow()
+        val persisted = tmpfile.persist(persistPath).getOrThrow()
+        assertNotNull(persisted)
         assertFalse(fileExists(oldPath))
         assertTrue(fileExists(persistPath))
 
@@ -102,7 +104,7 @@ class NamedTempFileTest {
     @Test
     fun testIntoParts() {
         val file = NamedTempFile.new().getOrThrow()
-        val (handle, tempPath) = file.intoParts()
+        val (_, tempPath) = file.intoParts()
         val path = tempPath.path()
 
         assertTrue(fileExists(path))
@@ -125,7 +127,7 @@ class NamedTempFileTest {
     @Test
     fun testKeep() {
         val tmpfile = NamedTempFile.new().getOrThrow()
-        val (f, tempPath) = tmpfile.intoParts()
+        val (_, tempPath) = tmpfile.intoParts()
         val path = tempPath.keep().getOrThrow()
 
         assertTrue(fileExists(path))

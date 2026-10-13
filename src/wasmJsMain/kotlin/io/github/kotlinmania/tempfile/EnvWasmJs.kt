@@ -4,9 +4,10 @@
 
 package io.github.kotlinmania.tempfile
 
-private fun isNodeAvailable(): Boolean = js("typeof require === 'function' || typeof __non_webpack_require__ === 'function'")
+private fun isNodeAvailable(): Boolean =
+    js("typeof process !== 'undefined' && (typeof process.getBuiltinModule === 'function' || typeof globalThis.require === 'function')")
 
 private fun nodeOsTmpdir(): String =
-    js("(typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require)('os').tmpdir()")
+    js("(typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('os') : globalThis.require('os')).tmpdir()")
 
 actual fun systemTempDir(): String = if (isNodeAvailable()) nodeOsTmpdir() else "/tmp"

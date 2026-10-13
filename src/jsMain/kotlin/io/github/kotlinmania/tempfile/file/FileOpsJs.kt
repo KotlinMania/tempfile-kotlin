@@ -6,9 +6,10 @@ import io.github.kotlinmania.tempfile.dir.inMemoryDirs
 import io.github.kotlinmania.tempfile.dir.inMemoryFiles
 import io.github.kotlinmania.tempfile.withErrPath
 
-private fun getNodeFs(): dynamic = js(
-    "(function(){ try { var r = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : (typeof require === 'function' ? require : null); return r ? r('fs') : null; } catch (e) { return null; } })()",
-)
+private fun getNodeFs(): dynamic =
+    js(
+        "(function(){ try { var r = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : (typeof require === 'function' ? require : null); return r ? r('fs') : null; } catch (e) { return null; } })()",
+    )
 
 internal actual fun createNamedFile(path: String): Result<Unit> {
     val fs = getNodeFs()
@@ -66,8 +67,9 @@ internal actual fun persistFile(oldPath: String, newPath: String, overwrite: Boo
     if (!overwrite && inMemoryFiles.containsKey(newPath)) {
         return Result.failure<Unit>(IoException(IoErrorKind.AlreadyExists, "File already exists: $newPath")).withErrPath { oldPath }
     }
-    val content = inMemoryFiles.remove(oldPath)
-        ?: return Result.failure<Unit>(IoException(IoErrorKind.NotFound, "No such file: $oldPath")).withErrPath { oldPath }
+    val content =
+        inMemoryFiles.remove(oldPath)
+            ?: return Result.failure<Unit>(IoException(IoErrorKind.NotFound, "No such file: $oldPath")).withErrPath { oldPath }
     inMemoryFiles[newPath] = content
     return Result.success(Unit)
 }
@@ -87,8 +89,9 @@ internal actual fun readBytes(path: String): Result<ByteArray> {
             bytes
         }.mapErrorToIoException(path)
     }
-    val data = inMemoryFiles[path]
-        ?: return Result.failure<ByteArray>(IoException(IoErrorKind.NotFound, "No such file: $path")).withErrPath { path }
+    val data =
+        inMemoryFiles[path]
+            ?: return Result.failure<ByteArray>(IoException(IoErrorKind.NotFound, "No such file: $path")).withErrPath { path }
     return Result.success(data)
 }
 
